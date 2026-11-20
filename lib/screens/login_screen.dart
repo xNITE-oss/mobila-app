@@ -64,116 +64,188 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_authError != null) setState(() => _authError = null);
   }
 
+  /// Kiritish maydonlarining umumiy ko'rinishi: to'ldirilgan fon va
+  /// yumaloq burchaklar.
+  InputDecoration _fieldDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Center(child: AppLogo()),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Xush kelibsiz',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Kalkulyatordan foydalanish uchun tizimga kiring',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      key: const Key('login_field'),
-                      controller: _loginController,
-                      decoration: const InputDecoration(
-                        labelText: 'Login',
-                        prefixIcon: Icon(Icons.person_outline),
-                        border: OutlineInputBorder(),
-                      ),
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      onChanged: _clearAuthError,
-                      validator: (value) =>
-                          (value == null || value.trim().isEmpty)
-                          ? 'Loginni kiriting'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      key: const Key('password_field'),
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Parol',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          key: const Key('password_visibility_button'),
-                          tooltip: _obscurePassword
-                              ? "Parolni ko'rsatish"
-                              : 'Parolni yashirish',
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            // Mazmun kam bo'lsa ham sahifa butun ekranni egallaydi.
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              children: [
+                const _Header(),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Tizimga kirish',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              key: const Key('login_field'),
+                              controller: _loginController,
+                              decoration: _fieldDecoration(
+                                label: 'Login',
+                                icon: Icons.person_outline,
+                              ),
+                              textInputAction: TextInputAction.next,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              onChanged: _clearAuthError,
+                              validator: (value) =>
+                                  (value == null || value.trim().isEmpty)
+                                  ? 'Loginni kiriting'
+                                  : null,
+                            ),
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              key: const Key('password_field'),
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              decoration: _fieldDecoration(
+                                label: 'Parol',
+                                icon: Icons.lock_outline,
+                                suffixIcon: IconButton(
+                                  key: const Key('password_visibility_button'),
+                                  tooltip: _obscurePassword
+                                      ? "Parolni ko'rsatish"
+                                      : 'Parolni yashirish',
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.done,
+                              onChanged: _clearAuthError,
+                              onFieldSubmitted: (_) => _submit(),
+                              validator: (value) =>
+                                  (value == null || value.isEmpty)
+                                  ? 'Parolni kiriting'
+                                  : null,
+                            ),
+                            if (_authError != null) ...[
+                              const SizedBox(height: 16),
+                              _ErrorBanner(message: _authError!),
+                            ],
+                            const SizedBox(height: 22),
+                            FilledButton(
+                              key: const Key('login_button'),
+                              onPressed: _submit,
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(54),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                textStyle: theme.textTheme.titleMedium,
+                              ),
+                              child: const Text('Kirish'),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Sinov uchun: login — ${AuthService.demoLogin}, '
+                              'parol — ${AuthService.demoPassword}',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      textInputAction: TextInputAction.done,
-                      onChanged: _clearAuthError,
-                      onFieldSubmitted: (_) => _submit(),
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Parolni kiriting'
-                          : null,
                     ),
-                    if (_authError != null) ...[
-                      const SizedBox(height: 16),
-                      _ErrorBanner(message: _authError!),
-                    ],
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      key: const Key('login_button'),
-                      onPressed: _submit,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(52),
-                        textStyle: theme.textTheme.titleMedium,
-                      ),
-                      child: const Text('Kirish'),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Sinov uchun: login — ${AuthService.demoLogin}, '
-                      'parol — ${AuthService.demoPassword}',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Oynaning yuqori qismi: rangli fon ustida logotip va sarlavha.
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFF4511E), Color(0xFFBF360C)],
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 36, 24, 36),
+          child: Column(
+            children: [
+              const AppLogo(size: 76, onColor: true),
+              const SizedBox(height: 18),
+              Text(
+                'Xush kelibsiz',
+                textAlign: TextAlign.center,
+                style: textTheme.headlineMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                'Kalkulyatordan foydalanish uchun tizimga kiring',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.92),
+                ),
+              ),
+            ],
           ),
         ),
       ),

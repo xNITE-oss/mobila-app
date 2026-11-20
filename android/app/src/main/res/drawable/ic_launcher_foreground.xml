@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Ilova belgisining old qatlami: «±» belgisi (tepada plyus, pastda minus). -->
+<!-- Ilova belgisining old qatlami: «÷» belgisi (o'rtada chiziq, tepasida va pastida nuqta). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M42,47h24M54,35v24"
+        android:pathData="M39.6,54h28.8"
         android:strokeColor="#FFFFFF"
         android:strokeLineCap="round"
-        android:strokeWidth="6" />
+        android:strokeWidth="6.5" />
     <path
-        android:pathData="M42,68h24"
-        android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round"
-        android:strokeWidth="6" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,36.3a4,4 0,1 0,0 8a4,4 0,1 0,0 -8z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,63.7a4,4 0,1 0,0 8a4,4 0,1 0,0 -8z" />
 </vector>

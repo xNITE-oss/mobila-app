@@ -49,19 +49,22 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _KeySpec(
           id: 'clear',
           label: 'AC',
-          kind: _KeyKind.action,
+          kind: _KeyKind.function,
           action: _engine.clear,
         ),
         _KeySpec(
-          id: 'parens',
-          label: '( )',
-          kind: _KeyKind.operator,
-          action: _engine.inputParenthesis,
+          id: 'backspace',
+          icon: Icons.backspace_outlined,
+          semanticLabel: "O'chirish",
+          kind: _KeyKind.function,
+          action: _engine.backspace,
+          // Uzoq bosib turilsa, hammasi tozalanadi.
+          longPressAction: _engine.clear,
         ),
         _KeySpec(
           id: 'percent',
           label: '%',
-          kind: _KeyKind.operator,
+          kind: _KeyKind.function,
           action: _engine.inputPercent,
         ),
         operator('divide', '÷', Sym.divide),
@@ -70,21 +73,18 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       [digit(4), digit(5), digit(6), operator('minus', '−', Sym.minus)],
       [digit(1), digit(2), digit(3), operator('plus', '+', Sym.plus)],
       [
+        _KeySpec(
+          id: 'parens',
+          label: '( )',
+          kind: _KeyKind.function,
+          action: _engine.inputParenthesis,
+        ),
         digit(0),
         _KeySpec(
           id: 'dot',
           label: '.',
           kind: _KeyKind.digit,
           action: _engine.inputDot,
-        ),
-        _KeySpec(
-          id: 'backspace',
-          icon: Icons.backspace_outlined,
-          semanticLabel: "O'chirish",
-          kind: _KeyKind.digit,
-          action: _engine.backspace,
-          // Uzoq bosib turilsa, hammasi tozalanadi.
-          longPressAction: _engine.clear,
         ),
         _KeySpec(
           id: 'equals',
@@ -160,17 +160,25 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    // Yuqori panel rangi: yorug' mavzuda asosiy rang, qorong'i mavzuda
+    // uning to'qroq ko'rinishi.
+    final dark = theme.brightness == Brightness.dark;
+    final barColor = dark ? scheme.primaryContainer : scheme.primary;
+    final onBarColor = dark ? scheme.onPrimaryContainer : scheme.onPrimary;
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: barColor,
+        foregroundColor: onBarColor,
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Kalkulyator'),
             Text(
               'Foydalanuvchi: ${widget.username}',
               style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: onBarColor.withValues(alpha: 0.85),
               ),
             ),
           ],
@@ -272,8 +280,14 @@ class _Display extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Align(
@@ -381,8 +395,9 @@ class _SingleLine extends StatelessWidget {
 // Tugmalar
 // -------------------------------------------------------------------------
 
-/// Tugma turi — rangini belgilaydi.
-enum _KeyKind { digit, operator, action, equals }
+/// Tugma turi — rangini belgilaydi: raqam, yordamchi tugma (AC, o'chirish,
+/// foiz, qavs), amal va «=».
+enum _KeyKind { digit, function, operator, equals }
 
 /// Bitta tugma tavsifi.
 class _KeySpec {
@@ -420,7 +435,7 @@ class _Keypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(11, 0, 11, 11),
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: Column(
         children: [
           for (final row in rows)
@@ -451,22 +466,22 @@ class _CalcButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (background, foreground) = switch (spec.kind) {
-      _KeyKind.digit => (scheme.surfaceContainerHigh, scheme.onSurface),
-      _KeyKind.operator => (
+      _KeyKind.digit => (scheme.surfaceContainerHighest, scheme.onSurface),
+      _KeyKind.function => (
         scheme.secondaryContainer,
         scheme.onSecondaryContainer,
       ),
-      _KeyKind.action => (scheme.tertiaryContainer, scheme.onTertiaryContainer),
-      _KeyKind.equals => (scheme.primary, scheme.onPrimary),
+      _KeyKind.operator => (scheme.primary, scheme.onPrimary),
+      _KeyKind.equals => (scheme.tertiary, scheme.onTertiary),
     };
     final longPressAction = spec.longPressAction;
 
     return Padding(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(4),
       child: Material(
         key: Key('key_${spec.id}'),
         color: background,
-        shape: const StadiumBorder(),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => onPressed(spec.action),

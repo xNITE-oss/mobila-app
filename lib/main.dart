@@ -14,7 +14,7 @@ class KalkulyatorApp extends StatelessWidget {
   const KalkulyatorApp({super.key});
 
   /// Butun ilova ranglari shu bitta rangdan hosil qilinadi.
-  static const Color _seedColor = Color(0xFF00897B);
+  static const Color _seedColor = Color(0xFFE64A19);
 
   @override
   Widget build(BuildContext context) {
