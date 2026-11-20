@@ -98,9 +98,11 @@ lib/
 │   ├── auth_service.dart         # Login va parolni tekshirish
 │   ├── calculator_engine.dart    # Kalkulyator mantig'i (Flutter'ga bog'liq emas)
 │   └── rational.dart             # Aniq kasr sonlar (surat / maxraj)
-└── screens/
-    ├── login_screen.dart         # Login oynasi
-    └── calculator_screen.dart    # Kalkulyator oynasi
+├── screens/
+│   ├── login_screen.dart         # Login oynasi
+│   └── calculator_screen.dart    # Kalkulyator oynasi
+└── widgets/
+    └── app_logo.dart             # Ilova logotipi («±» belgisi)
 test/                             # Avtomatik testlar
 .github/workflows/build.yml       # Test va APK yig'ish (GitHub Actions)
 ```

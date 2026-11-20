@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../logic/auth_service.dart';
+import '../widgets/app_logo.dart';
 import 'calculator_screen.dart';
 
 /// Login oynasi: login va parol so'raladi, to'g'ri bo'lsa kalkulyator
@@ -80,21 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(
-                      child: Container(
-                        width: 88,
-                        height: 88,
-                        decoration: BoxDecoration(
-                          color: scheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        child: Icon(
-                          Icons.calculate_rounded,
-                          size: 52,
-                          color: scheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
+                    const Center(child: AppLogo()),
                     const SizedBox(height: 24),
                     Text(
                       'Xush kelibsiz',
